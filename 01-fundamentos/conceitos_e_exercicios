@@ -1,0 +1,416 @@
+# Aprendendo SQL para Dados
+
+
+> Material convertido do notebook Google Colab para Markdown. Os exemplos de código foram preservados; saídas de execução do notebook não foram incluídas.
+
+
+Fase 1 - Adicionar dados de uma base existente
+
+Para esse estudo, vamos utilizar uma base de dados gratuita disponível no Kaggle da Netflix.
+
+Baixar os  (netflix_titles.csv) em : https://www.kaggle.com/datasets/shivamb/netflix-shows
+
+Realize um Bulk Insert para Adicionar os dados massivamente no SQL Server
+
+EX01) Crie uma base Dados no SQL para iniciar o projeto ;
+
+EX02) Crie a tabela NetflixTitles_Staging com todos os campos varchar(max) apenas para receber os dados brutos do arquivo csv de origem
+
+EX03) Realize o Bulk Insert seguindo o exemplo de código abaixo
+
+```sql
+CREATE DATABASE NOME_DATABASE;
+
+USE NOME_DATABASE;
+
+CREATE TABLE dbo.NetflixTitles_Staging (
+    coluna1 tipo_de_dados [restrição],
+    coluna2 tipo_de_dados [restrição],
+    ...
+    [CONSTRAINT nome_da_restricao PRIMARY KEY (coluna_pk)]
+);
+```
+
+```sql
+BULK INSERT dbo.NetflixTitles_Staging
+FROM 'C:\Users\UNIP\Desktop\netflix_titles.csv'
+WITH
+(
+    FORMAT = 'CSV',
+    FIRSTROW = 2,
+    FIELDQUOTE = '"',
+    CODEPAGE = '65001',
+    ROWTERMINATOR = '0x0A',
+    TABLOCK
+);
+```
+
+Fase 2 - Revisão Consultas SQL Básicas : Treinando Funções de Select
+
+EX04) Liste todas as colunas e todos os registros da tabela.
+
+EX05) Apresente somente o código, o título, o tipo e o ano de lançamento de cada produção.
+
+EX06) Liste todos os tipos de produção existentes na base, sem apresentar valores duplicados.
+
+EX07) Apresente os 10 primeiros registros, exibindo título, tipo e país.
+
+EX08) Liste todos os filmes, exibindo código, título, país e ano de lançamento.
+
+EX09) Liste todas as séries (TV Show) lançadas em 2021.
+
+EX10) Apresente todas as produções dos Estados Unidos.
+
+EX11) Liste as produções lançadas entre 2015 e 2020, ordenando do ano mais recente para o mais antigo.
+
+EX12) Apresente as produções que possuem classificação indicativa TV-MA, TV-14 ou PG-13.
+
+EX13)Liste os títulos que começam com a palavra The.
+
+EX14) Encontre as produções cujo título contenha a palavra Love, independentemente de sua posição.
+
+EX15) Liste as produções que não possuem diretor informado.
+
+EX16) Apresente todos os países existentes na base, sem repetições e em ordem alfabética. Desconsidere países não informados.
+
+EX17) Conte quantas produções existem na base para cada tipo: Movie ou TV Show.
+
+EX18) Apresente os anos que possuem mais de 100 produções cadastradas, mostrando o ano e a quantidade. Ordene da maior para a menor quantidade.
+
+Fase 3 - Revisão Consultas SQL Básicas : Treinando Indicadores
+
+EX19) Calcule a quantidade total de registros existentes na base.
+
+EX20) Apresente a quantidade de produções agrupadas por type, diferenciando filmes e séries.
+
+EX21) Calcule quantas produções existem em cada classificação indicativa (rating). Desconsidere classificações não informadas e ordene da maior para a menor quantidade.
+
+EX22) Apresente a quantidade de produções lançadas em cada ano. Considere apenas anos válidos e ordene do ano mais recente para o mais antigo
+
+EX23) Utilizando HAVING, apresente somente os anos que possuem mais de 100 produções cadastradas.
+
+EX24) Apresente a quantidade de filmes e séries lançados por ano. O resultado deve possuir as colunas: Ano; Tipo; Quantidade de produções.
+
+EX25) Apresente os anos em que foram lançados mais de 50 registros do tipo Movie.
+
+EX26) Calcule a quantidade de produções associadas a cada valor da coluna country. Desconsidere valores nulos e vazios e apresente os dez resultados com maior quantidade.
+> Na base bruta, alguns registros possuem vários países na mesma coluna. Neste exercício, a combinação completa será considerada um único valor.
+
+EX27) Crie um indicador que mostre a quantidade de produções que não possuem diretor informado. Considere tanto valores NULL quanto textos vazios.
+
+EX28) Calcule o percentual que cada tipo de produção representa em relação ao total da base. O resultado deve apresentar: Tipo; Quantidade; Percentual.
+
+EX29) Calcule a soma, em minutos, da duração de todos os filmes.
+>A coluna duration possui valores como:
+ 90 min; 125 min; 67 min. Será necessário retirar o texto  min e converter o resultado para um tipo numérico.
+
+EX30) Calcule a duração média dos filmes em minutos. Apresente o resultado com duas casas decimais.
+
+EX31) Apresente, em uma única consulta: Menor duração; Maior duração;Duração média.
+
+>Considere somente registros do tipo Movie que tenham uma duração válida.
+
+EX32) Apresente a quantidade de séries agrupada pelo número de temporadas.
+> A coluna duration possui valores como: 1 Season, 2 Seasons, 5 Seasons.
+>  Converta essa informação para um valor numérico antes do agrupamento.
+
+EX33) Calcule a duração média dos filmes para cada classificação indicativa e apresente somente as classificações cuja média seja superior a 100 minutos. O resultado deve apresentar: Classificação indicativa; Quantidade de filmes;Duração média.
+
+Consultas Avançadas com SQL - COALESCE e NULLIF: tratar ausências
+
+COALESCE — retornar o primeiro valor não nulo
+
+NULLIF — devolver NULL quando dois valores forem iguais
+
+```sql
+SELECT COALESCE(valor_1, valor_2, valor_3) FROM tabela
+```
+
+```sql
+NULLIF(valor_1, valor_2)
+```
+
+EX34) Transformar diretor vazio em ausência e depois aplicar um rótulo.
+
+Consultas Avançadas com SQL - Operadores de conjunto: combinar resultados
+
+As consultas combinadas precisam ter:
+A mesma quantidade de colunas.
+
+*   Colunas correspondentes na mesma ordem.
+* Tipos compatíveis.
+* A comparação considera todas as colunas selecionadas.
+
+INTERSECT e EXCEPT devolvem resultados distintos; para comparação de conjuntos, dois valores NULL são considerados equivalentes.
+
+UNION — unir e remover duplicidades
+
+```sql
+SELECT coluna1, coluna2
+FROM tabela1
+UNION
+SELECT coluna1, coluna2
+FROM tabela2;
+```
+
+UNION ALL — unir mantendo duplicidades
+
+Use UNION ALL quando essas ocorrências devem ser preservadas ou quando você sabe que os conjuntos não se sobrepõem.
+
+```sql
+SELECT coluna1, coluna2, ...
+FROM tabela1
+UNION ALL
+SELECT coluna1, coluna2, ...
+FROM tabela2;
+```
+
+INTERSECT — retornar a interseção
+
+O SQL Server suporta apenas o operador INTERSECT padrão, que sempre remove duplicatas e retorna apenas linhas distintas que aparecem em ambos os comandos SELECT
+
+```sql
+SELECT coluna1, coluna2
+FROM tabela1
+INTERSECT
+SELECT coluna1, coluna2
+FROM tabela2;
+```
+
+EXCEPT — retornar o que existe no primeiro conjunto e não no segundo
+
+A ordem importa!
+
+```sql
+SELECT coluna1, coluna2, ...
+FROM TabelaA
+EXCEPT
+SELECT coluna1, coluna2, ...
+FROM TabelaB;
+```
+
+EX35) Considere dois conjuntos e realize consultas com todos os comandos listados acima.
+
+A: filmes brasileiros → IDs 1, 2 e 3.
+
+B: filmes lançados desde 2021 → IDs 2, 3, 4, 5 e 6.
+
+# Desafio 01: View de análise do catálogo audiovisual
+
+Você faz parte de uma equipe de dados que precisa disponibilizar uma visão analítica do catálogo audiovisual. Crie a view **`dbo.vw_AnaliseFilmesPorPais`**, combinando funções de janela, regras condicionais, tratamento de valores ausentes e operadores de conjunto.
+
+Utilize a tabela permanente **`dbo.Filmes`**, com as seguintes colunas:
+
+- `Id`
+- `Titulo`
+- `Pais`
+- `AnoLancamento`
+- `DuracaoMinutos`
+- `Diretor`
+
+## 1. Defina o conjunto de filmes analisados
+
+A view deverá considerar os filmes que pertençam a pelo menos um dos seguintes conjuntos:
+
+- **Conjunto A:** filmes lançados a partir de 2021.
+- **Conjunto B:** filmes com duração igual ou superior a 110 minutos.
+
+Combine os conjuntos utilizando **`UNION`**. Um filme que atenda aos dois critérios deverá aparecer somente uma vez.
+
+Crie também a coluna **`GrupoSelecao`**, utilizando **`CASE WHEN`**:
+
+| Condição | Resultado |
+| --- | --- |
+| Pertence aos conjuntos A e B | Ambos os critérios |
+| Pertence somente ao conjunto A | Lançamento recente |
+| Pertence somente ao conjunto B | Duração elevada |
+
+**Atenção:** não utilize `DISTINCT` ao final da consulta para ocultar duplicidades produzidas em outras etapas.
+
+## 2. Padronize os campos textuais
+
+Utilize **`NULLIF`** e **`COALESCE`**, removendo os espaços nas extremidades antes de verificar se os campos estão vazios.
+
+| Campo | Condição | Valor padronizado |
+| --- | --- | --- |
+| `Pais` | Vazio ou nulo | Não informado |
+| `Diretor` | Vazio ou nulo | Não informado |
+| `Titulo` | Vazio ou nulo | Título não informado |
+
+As transformações deverão ocorrer na consulta, preservando os dados originais da tabela.
+
+## 3. Crie indicadores com funções de janela
+
+Todos os indicadores deverão considerar **somente os filmes selecionados na etapa 1**, particionados pelo **país padronizado**.
+
+| Coluna da view | Função | Regra |
+| --- | --- | --- |
+| `OrdemRecenciaPais` | `ROW_NUMBER()` | Ordenar por ano de lançamento decrescente e `Id` crescente como desempate. |
+| `RankDuracaoPais` | `RANK()` | Ordenar por duração decrescente, preservando empates e permitindo lacunas. |
+| `DenseRankDuracaoPais` | `DENSE_RANK()` | Ordenar por duração decrescente, preservando empates e sem lacunas. |
+| `DuracaoAnteriorPais` | `LAG()` | Retornar a duração do filme anterior na sequência de lançamento. |
+| `DuracaoProximaPais` | `LEAD()` | Retornar a duração do filme seguinte na sequência de lançamento. |
+| `MediaDuracaoPais` | `AVG() OVER (...)` | Calcular a média das durações conhecidas do país, preservando as casas decimais. |
+| `QuantidadeFilmesPais` | `COUNT() OVER (...)` | Contar os filmes selecionados do país, incluindo aqueles com duração desconhecida. |
+
+### Ordenação de `LAG` e `LEAD`
+
+Utilize a seguinte ordenação para ambas as funções:
+
+```sql
+ORDER BY AnoLancamento ASC, Id ASC
+```
+
+Essa sequência é diferente da ordenação decrescente utilizada em `OrdemRecenciaPais`.
+
+### Tratamento dos rankings de duração
+
+- Filmes com duração desconhecida deverão apresentar **ranking `NULL`**.
+- Filmes com a mesma duração deverão conservar seus empates.
+- **Não acrescente `Id` ao critério de ordenação dos rankings de duração**, pois isso eliminaria os empates.
+
+## 4. Acrescente regras de negócio
+
+Crie as seguintes colunas:
+
+| Coluna | Regra |
+| --- | --- |
+| `FaixaDuracao` | Classificar a duração como: Não informada; Até 99 minutos; De 100 a 120 minutos; Acima de 120 minutos. |
+| `ComparacaoMediaPais` | Classificar a duração como: Acima da média; Na média; Abaixo da média; Sem informação. |
+| `VariacaoDuracaoAnterior` | Calcular a duração atual menos a duração anterior. Retornar `NULL` quando a comparação não for possível. |
+| `PercentualDuracaoMedia` | Calcular a duração atual dividida pela média do país, multiplicada por 100. |
+
+### Percentual em relação à média
+
+No cálculo de **`PercentualDuracaoMedia`**:
+
+- Utilize **`NULLIF`** para proteger o denominador contra zero.
+- Utilize um **tipo decimal** para evitar divisão inteira.
+- Preserve **`NULL`** quando não houver informação suficiente.
+
+### Comparação com a média do país
+
+Para **`ComparacaoMediaPais`**, aplique as regras:
+
+| Condição | Resultado |
+| --- | --- |
+| Duração atual ou média do país desconhecida | Sem informação |
+| Diferença absoluta entre a duração atual e a média inferior a **0,01 minuto** | Na média |
+| Duração atual superior à média, fora da tolerância | Acima da média |
+| Duração atual inferior à média, fora da tolerância | Abaixo da média |
+
+**FASE 4 -  Introduzindo Consultas Avançadas - CTE **
+
+CTE - WITH
+No SQL Server, a cláusula WITH é usada para criar uma CTE (Common Table Expression ou Expressão de Tabela Comum). Ela funciona como uma tabela temporária nomeada que vale apenas para a duração de uma única instrução (SELECT, INSERT, UPDATE ou DELETE).
+
+```sql
+WITH NomeDaCTE (Coluna1, Coluna2) AS (
+    -- Consulta interna que define a CTE
+    SELECT Coluna1, Coluna2
+    FROM NomeDaTabela
+    WHERE Condicao = 1
+)
+-- Consulta principal que usa a CTE
+SELECT Coluna1, Coluna2
+FROM NomeDaCTE;
+```
+
+**Windows Function : Row Number**
+
+Calculam informações relacionadas à linha atual sem eliminar o detalhamento das linhas, como aconteceria com um agrupamento.
+A estrutura varia conforme a função:
+
+PARTITION BY: divide as linhas em grupos para o cálculo.
+
+ORDER BY dentro de OVER: define a sequência usada pelo cálculo.
+
+ORDER BY ao final do SELECT: define a ordem de apresentação.
+
+```sql
+SELECT
+ROW NUMBER() OVER (
+    PARTITION BY coluna_de_agrupamento
+    ORDER BY coluna_de_ordenacao
+)
+```
+
+EX36) Numerar os filmes de cada país, começando pelo mais recente.
+
+**Transações COMMIT e ROLLBACK**
+
+Uma transação reúne alterações que precisam ser tratadas como uma unidade: todas são confirmadas ou todas são desfeitas.
+
+| Comando | Função |
+| --- | --- |
+| `BEGIN TRANSACTION` | Inicia a transação. |
+| `COMMIT TRANSACTION` | Confirma as alterações. |
+| `ROLLBACK TRANSACTION` | Desfaz as alterações ainda não confirmadas. |
+
+**Atenção:** `ROLLBACK` não desfaz uma transação que já recebeu `COMMIT`.
+
+```sql
+-- Demonstração de alteração e reversão
+
+USE NetflixLab;
+GO
+
+-- Escolhe um filme existente para a demonstração.
+DECLARE @ShowId varchar(20);
+
+SELECT TOP (1)
+    @ShowId = ShowId
+FROM dbo.Titulo
+WHERE Tipo = 'Movie'
+ORDER BY ShowId;
+
+IF @ShowId IS NULL
+    THROW 50001, 'Não há filmes para realizar a demonstração.', 1;
+
+-- Mostra o valor original.
+SELECT
+    'Antes' AS Etapa,
+    ShowId,
+    Titulo,
+    Classificacao
+FROM dbo.Titulo
+WHERE ShowId = @ShowId;
+
+BEGIN TRANSACTION;
+
+    -- Altera somente o título selecionado.
+    UPDATE dbo.Titulo
+    SET Classificacao = 'TESTE'
+    WHERE ShowId = @ShowId;
+
+    -- A própria sessão consegue ver sua alteração.
+    SELECT
+        'Durante a transação' AS Etapa,
+        ShowId,
+        Titulo,
+        Classificacao
+    FROM dbo.Titulo
+    WHERE ShowId = @ShowId;
+
+ROLLBACK TRANSACTION;
+
+-- Mostra o valor restaurado.
+SELECT
+    'Depois do rollback' AS Etapa,
+    ShowId,
+    Titulo,
+    Classificacao
+FROM dbo.Titulo
+WHERE ShowId = @ShowId;
+```
+
+Se a classificação original fosse PG, o resultado seria:
+
+| Etapa | Classificação |
+| --- | --- |
+| Antes | PG |
+| Durante a transação | TESTE |
+| Depois do rollback | PG |
+
+A alteração existiu dentro da transação, mas o ROLLBACK restaurou o valor original, inclusive se ele fosse NULL.
+Para persistir a alteração, seria necessário executar COMMIT no lugar do ROLLBACK. Não execute os dois como alternativas consecutivas.
